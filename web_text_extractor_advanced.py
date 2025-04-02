@@ -1719,6 +1719,8 @@ class WebContentExtractor:
     """
     combined_text = ""
     
+    # (残りのコード)
+    
     # 出力ファイルのヘッダー
     timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     
