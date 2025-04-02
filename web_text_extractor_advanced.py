@@ -1743,85 +1743,85 @@ class WebContentExtractor:
         combined_text += f"抽出日時: {timestamp}\n"
         combined_text += f"URL件数: {len(results)}件\n\n"
         combined_text += f"{'=' * 60}\n\n"
-        
-        # カテゴリ別に分類
-if separate_sections:
-    categorized_results = {}
-    for result in results:
-        # エラー結果をスキップ（オプションによる）
-        if not result['success'] and not include_errors:
-            continue
-        
-        category = result.get('category', 'html')
-        if category not in categorized_results:
-            categorized_results[category] = []
-        
-        categorized_results[category].append(result)
     
-    # 通常のHTMLコンテンツを先に表示
-    category_order = ['html', 'document', 'pdf', 'image', 'video', 'audio', 'archive', 'ecommerce', 'adult', 'duplicate', 'invalid']
-    
-    for category in category_order:
-        if category not in categorized_results:
-            continue
+    # カテゴリ別に分類
+    if separate_sections:
+        categorized_results = {}
+        for result in results:
+            # エラー結果をスキップ（オプションによる）
+            if not result['success'] and not include_errors:
+                continue
+            
+            category = result.get('category', 'html')
+            if category not in categorized_results:
+                categorized_results[category] = []
+            
+            categorized_results[category].append(result)
         
-        category_results = categorized_results[category]
-        if not category_results:
-            continue
+        # 通常のHTMLコンテンツを先に表示
+        category_order = ['html', 'document', 'pdf', 'image', 'video', 'audio', 'archive', 'ecommerce', 'adult', 'duplicate', 'invalid']
         
-        # カテゴリヘッダー
-        if format_type == 'html':
-            combined_text += f"""
+        for category in category_order:
+            if category not in categorized_results:
+                continue
+            
+            category_results = categorized_results[category]
+            if not category_results:
+                continue
+            
+            # カテゴリヘッダー
+            if format_type == 'html':
+                combined_text += f"""
 <section class="category">
 <h2>{category.capitalize()} コンテンツ ({len(category_results)}件)</h2>
 """
-        elif format_type == 'md':
-            combined_text += f"## {category.capitalize()} コンテンツ ({len(category_results)}件)\n\n"
-        else:  # txt
-            combined_text += f"=== {category.capitalize()} コンテンツ ({len(category_results)}件) ===\n\n"
-        
-        # 各結果を追加
-        for result in category_results:
-            combined_text += self._format_single_result(result, format_type, include_headers)
-        
-        if format_type == 'html':
-            combined_text += """
+            elif format_type == 'md':
+                combined_text += f"## {category.capitalize()} コンテンツ ({len(category_results)}件)\n\n"
+            else:  # txt
+                combined_text += f"=== {category.capitalize()} コンテンツ ({len(category_results)}件) ===\n\n"
+            
+            # 各結果を追加
+            for result in category_results:
+                combined_text += self._format_single_result(result, format_type, include_headers)
+            
+            if format_type == 'html':
+                combined_text += """
 </section>
 """
-        else:
-            if format_type == 'md':
+            else:
+                if format_type == 'md':
+                    combined_text += "\n---\n\n"
+                else:  # txt
+                    combined_text += f"\n{'=' * 60}\n\n"
+    else:
+        # セクション分けなし - 単純に追加
+        for result in results:
+            # エラー結果をスキップ（オプションによる）
+            if not result['success'] and not include_errors:
+                continue
+            
+            combined_text += self._format_single_result(result, format_type, include_headers)
+            
+            # セパレータ
+            if format_type == 'html':
+                combined_text += """
+<hr>
+"""
+            elif format_type == 'md':
                 combined_text += "\n---\n\n"
             else:  # txt
                 combined_text += f"\n{'=' * 60}\n\n"
-else:
-    # セクション分けなし - 単純に追加
-    for result in results:
-        # エラー結果をスキップ（オプションによる）
-        if not result['success'] and not include_errors:
-            continue
-        
-        combined_text += self._format_single_result(result, format_type, include_headers)
-        
-        # セパレータ
-        if format_type == 'html':
-            combined_text += """
-<hr>
-"""
-        elif format_type == 'md':
-            combined_text += "\n---\n\n"
-        else:  # txt
-            combined_text += f"\n{'=' * 60}\n\n"
 
-# フッター
-if format_type == 'html':
-    combined_text += """
+    # フッター
+    if format_type == 'html':
+        combined_text += """
 </body>
 </html>
 """
 
-return combined_text
-    
-    def _format_single_result(self, result, format_type, include_headers):
+    return combined_text
+
+def _format_single_result(self, result, format_type, include_headers):
     """単一の結果をフォーマット"""
     formatted_text = ""
     
